@@ -79,33 +79,81 @@ def main():
                 status = "✅" if os.getenv(key) else "🟡"
                 st.write(f"{status} {name}")
         else:
-            st.warning("⚠️ Fallback Mode")
+            st.error("❌ API Keys Required")
+            st.write("This system requires API keys for real-time data fetching")
         
         st.markdown("---")
         st.markdown("### 🎯 Usage Tips")
         st.write("• Company: 'Tesla Motors', 'Apple Inc'")
         st.write("• Industry: 'Healthcare Industry', 'Retail'")
+        st.write("• Requires API keys for real-time data")
         st.write("• Analysis takes 30-60 seconds")
-        st.write("• Works with or without API keys")
+        st.write("• All data fetched live from APIs")
     
     # Main interface
     st.markdown("---")
     
+    # Example buttons
+    st.markdown("**Quick Examples:**")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        if st.button("Tesla Motors", use_container_width=True):
+            st.session_state.example_query = "Tesla Motors"
+    with col2:
+        if st.button("Healthcare Industry", use_container_width=True):
+            st.session_state.example_query = "Healthcare Industry"
+    with col3:
+        if st.button("Financial Services", use_container_width=True):
+            st.session_state.example_query = "Financial Services"
+    with col4:
+        if st.button("Retail Industry", use_container_width=True):
+            st.session_state.example_query = "Retail Industry"
+    
     query = st.text_input(
         "🏢 Enter Company Name or Industry:",
+        value=st.session_state.get('example_query', ''),
         placeholder="e.g., Tesla Motors, Healthcare Industry, Financial Services"
     )
     
     if st.button("🚀 Start AI Research", use_container_width=True):
         if query:
-            with st.spinner("🔍 Running multi-agent research..."):
-                try:
-                    system = MultiAgentResearchSystem()
-                    results = system.run_research(query)
-                    st.session_state.results = results
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-                    st.stop()
+            # Check API keys first
+            if not os.getenv('SERPER_API_KEY'):
+                st.error("❌ SERPER_API_KEY required for real-time research")
+                st.stop()
+            
+            # Progress tracking
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            try:
+                system = MultiAgentResearchSystem()
+                
+                # Agent 1
+                status_text.text("📊 Agent 1: Conducting industry research...")
+                progress_bar.progress(25)
+                
+                # Agent 2
+                status_text.text("💡 Agent 2: Generating AI/GenAI use cases...")
+                progress_bar.progress(50)
+                
+                # Agent 3
+                status_text.text("📚 Agent 3: Finding datasets and resources...")
+                progress_bar.progress(75)
+                
+                # Agent 4
+                status_text.text("✨ Agent 4: Generating bonus GenAI solutions...")
+                progress_bar.progress(100)
+                
+                results = system.run_research(query)
+                st.session_state.results = results
+                
+                progress_bar.empty()
+                status_text.empty()
+                
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+                st.stop()
             
             results = st.session_state.get('results')
             if results:
@@ -248,7 +296,8 @@ def main():
                         )
                     
                     st.markdown("---")
-                    st.success("✅ Analysis Complete - All agents executed successfully")
+                    st.success("✅ Analysis Complete - All 4 agents executed successfully")
+                    st.info("📊 Research Agent → 💡 Use Case Agent → 📚 Resource Agent → ✨ Bonus Agent")
             else:
                 st.error("No results available")
         else:

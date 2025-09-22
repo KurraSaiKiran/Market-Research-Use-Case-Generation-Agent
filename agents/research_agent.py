@@ -45,38 +45,8 @@ class ResearchAgent:
             return self._fallback_research(query)
     
     def _fallback_research(self, query: str) -> Dict:
-        """Fallback when APIs unavailable"""
-        industry_map = {
-            "tesla": "Automotive/Electric Vehicles",
-            "retail": "Retail & E-commerce", 
-            "healthcare": "Healthcare & Medical",
-            "finance": "Financial Services",
-            "manufacturing": "Manufacturing & Industrial",
-            "education": "Education Technology",
-            "agriculture": "Agriculture & Food Tech",
-            "energy": "Energy & Utilities",
-            "logistics": "Logistics & Transportation",
-            "media": "Media & Entertainment"
-        }
-        
-        # Better industry detection
-        detected_industry = "Technology"
-        for key, value in industry_map.items():
-            if key in query.lower():
-                detected_industry = value
-                break
-        
-        if "industry" not in query.lower():
-            detected_industry = f"{query.title()} Industry"
-        
-        return {
-            "industry": detected_industry,
-            "company_offerings": self._get_fallback_offerings(query),
-            "focus_areas": ["Digital transformation", "AI adoption", "Process automation", "Customer experience enhancement"],
-            "competitors": [f"Leading companies in {detected_industry}", "Industry innovators", "Market disruptors"],
-            "market_trends": ["AI integration", "Sustainability focus", "Digital-first approach"],
-            "market_size": "Multi-billion dollar market with significant growth potential"
-        }
+        """Fallback when APIs unavailable - requires API keys"""
+        raise Exception("SERPER_API_KEY required for real-time research. No fallback data available.")
     
     def _extract_industry(self, query: str) -> str:
         if "industry" in query.lower():
