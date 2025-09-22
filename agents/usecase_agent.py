@@ -7,7 +7,7 @@ class UseCaseAgent:
         self.serper_key = os.getenv('SERPER_API_KEY')
     
     def generate_use_cases(self, research_data: Dict) -> List[Dict]:
-        """Generate AI/GenAI use cases based on real research data"""
+        """Generate industry-specific AI/GenAI use cases"""
         industry = research_data.get("industry", "")
         focus_areas = research_data.get("focus_areas", [])
         trends = research_data.get("market_trends", [])
@@ -17,51 +17,62 @@ class UseCaseAgent:
         
         use_cases = []
         
+        # Generate industry-specific base use cases first
+        base_cases = self._generate_industry_base_cases(industry)
+        use_cases.extend(base_cases)
+        
         # Generate use cases from focus areas
-        for area in focus_areas[:4]:
+        for area in focus_areas[:3]:
             use_case = self._generate_use_case_from_focus_area(area, industry)
-            if use_case and use_case not in use_cases:
+            if use_case and not any(uc['name'] == use_case['name'] for uc in use_cases):
                 use_cases.append(use_case)
-        
-        # Generate use cases from market trends
-        for trend in trends[:2]:
-            use_case = self._generate_use_case_from_trend(trend, industry)
-            if use_case and use_case not in use_cases:
-                use_cases.append(use_case)
-        
-        # Search for industry-specific AI use cases online
-        online_cases = self._search_industry_use_cases(industry)
-        for case in online_cases:
-            if case not in use_cases and len(use_cases) < 6:
-                use_cases.append(case)
         
         # Add GenAI cases
         genai_cases = self._add_genai_cases_from_research(research_data)
         for case in genai_cases:
-            if case not in use_cases and len(use_cases) < 8:
+            if not any(uc['name'] == case['name'] for uc in use_cases) and len(use_cases) < 8:
                 use_cases.append(case)
         
         print(f"[DEBUG] Generated {len(use_cases)} use cases")
         return use_cases[:8]
     
-    def _search_industry_use_cases(self, industry: str) -> List[Dict]:
-        """Search for real AI use cases for the industry"""
-        if not self.serper_key:
-            return []
+    def _generate_industry_base_cases(self, industry: str) -> List[Dict]:
+        """Generate core industry-specific use cases"""
+        industry_lower = industry.lower()
         
-        try:
-            url = "https://google.serper.dev/search"
-            payload = {"q": f"{industry} AI use cases applications machine learning examples"}
-            headers = {"X-API-KEY": self.serper_key, "Content-Type": "application/json"}
-            
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                return self._extract_use_cases_from_search(data, industry)
-        except Exception as e:
-            print(f"[DEBUG] Use case search failed: {e}")
+        if "healthcare" in industry_lower or "medical" in industry_lower:
+            return [
+                {"name": "Medical Image Analysis", "description": "AI-powered analysis of X-rays, MRIs, and CT scans for diagnostic assistance", "value": "Improve diagnostic accuracy by 40%, reduce radiologist workload"},
+                {"name": "Drug Discovery Platform", "description": "Machine learning for molecular analysis and drug compound identification", "value": "Accelerate drug development by 50%, reduce R&D costs"},
+                {"name": "Electronic Health Records AI", "description": "Intelligent processing and analysis of patient medical records", "value": "Reduce documentation time by 60%, improve care coordination"}
+            ]
         
-        return []
+        elif "finance" in industry_lower or "banking" in industry_lower or "financial" in industry_lower:
+            return [
+                {"name": "Fraud Detection System", "description": "Real-time AI-powered fraud detection and prevention for transactions", "value": "Reduce fraud losses by 85%, improve customer trust"},
+                {"name": "Algorithmic Trading Platform", "description": "AI-driven automated trading strategies and market analysis", "value": "Improve trading returns by 30%, reduce human error"},
+                {"name": "Credit Risk Assessment", "description": "Machine learning models for loan approval and risk evaluation", "value": "Reduce default rates by 40%, faster loan processing"}
+            ]
+        
+        elif "retail" in industry_lower or "ecommerce" in industry_lower:
+            return [
+                {"name": "Recommendation Engine", "description": "AI-powered product recommendations based on customer behavior", "value": "Increase sales by 35%, improve customer satisfaction"},
+                {"name": "Dynamic Pricing System", "description": "Real-time price optimization based on demand and competition", "value": "Increase profit margins by 25%, stay competitive"},
+                {"name": "Supply Chain Optimization", "description": "AI-driven inventory management and demand forecasting", "value": "Reduce inventory costs by 30%, prevent stockouts"}
+            ]
+        
+        elif "automotive" in industry_lower or "tesla" in industry_lower:
+            return [
+                {"name": "Autonomous Driving System", "description": "AI-powered self-driving technology with computer vision and sensors", "value": "Reduce accidents by 90%, enable fully autonomous vehicles"},
+                {"name": "Predictive Maintenance", "description": "Machine learning for vehicle health monitoring and maintenance prediction", "value": "Reduce maintenance costs by 50%, prevent breakdowns"},
+                {"name": "Manufacturing Quality Control", "description": "AI-powered defect detection in vehicle production lines", "value": "Reduce defects by 80%, improve production efficiency"}
+            ]
+        
+        else:
+            return [
+                {"name": f"{industry} Process Automation", "description": f"AI-powered workflow automation for {industry} operations", "value": "Reduce manual work by 60%, improve efficiency"},
+                {"name": f"{industry} Data Analytics", "description": f"Advanced analytics and insights platform for {industry}", "value": "Enable data-driven decisions, improve performance by 25%"}
+            ]
     
     def _extract_use_cases_from_search(self, data: Dict, industry: str) -> List[Dict]:
         """Extract use cases from search results"""

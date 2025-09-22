@@ -203,25 +203,25 @@ class ResourceAgent:
         }]
     
     def _extract_keywords(self, use_case: str, description: str) -> List[str]:
-        """Extract relevant keywords from use case and description"""
+        """Extract industry-specific keywords from use case and description"""
         text = (use_case + " " + description).lower()
-        
-        # Common AI/ML keywords
         keywords = []
+        
+        # Industry-specific keywords
+        if "healthcare" in text or "medical" in text or "patient" in text or "clinical" in text:
+            keywords.extend(["medical", "healthcare", "patient", "clinical"])
+        elif "finance" in text or "banking" in text or "trading" in text or "investment" in text:
+            keywords.extend(["finance", "banking", "trading", "investment"])
+        elif "retail" in text or "shopping" in text or "ecommerce" in text or "inventory" in text:
+            keywords.extend(["retail", "ecommerce", "shopping", "inventory"])
+        elif "automotive" in text or "vehicle" in text or "tesla" in text or "manufacturing" in text:
+            keywords.extend(["automotive", "vehicle", "manufacturing", "tesla"])
+        
+        # Task-specific keywords
         if "predictive" in text or "forecasting" in text:
             keywords.append("forecasting")
         if "recommendation" in text or "personalization" in text:
             keywords.append("recommendation")
-        if "image" in text or "vision" in text:
-            keywords.append("image")
-        if "text" in text or "nlp" in text:
-            keywords.append("text")
-        if "fraud" in text or "detection" in text:
-            keywords.append("fraud")
-        if "healthcare" in text or "medical" in text:
-            keywords.append("medical")
-        if "financial" in text or "finance" in text:
-            keywords.append("financial")
         if "automation" in text:
             keywords.append("automation")
         if "optimization" in text:
@@ -229,20 +229,30 @@ class ResourceAgent:
         if "analytics" in text or "data" in text:
             keywords.append("analytics")
         
-        return keywords if keywords else ["machine learning"]
+        return keywords[:4] if keywords else ["machine learning"]
     
     def _fallback_kaggle(self, query: str) -> List[Dict]:
-        return [{
-            "name": f"{query.title()} Dataset",
-            "type": "Kaggle Dataset", 
-            "url": f"https://www.kaggle.com/search?q={query.replace(' ', '+')}",
-            "description": f"Search results for {query} datasets"
-        }]
+        # Industry-specific dataset suggestions
+        if "healthcare" in query.lower() or "medical" in query.lower():
+            return [{"name": "Medical Dataset Collection", "type": "Kaggle Dataset", "url": "https://www.kaggle.com/search?q=medical+healthcare+dataset", "description": "Healthcare and medical datasets for AI research"}]
+        elif "finance" in query.lower() or "banking" in query.lower() or "financial" in query.lower():
+            return [{"name": "Financial Data Collection", "type": "Kaggle Dataset", "url": "https://www.kaggle.com/search?q=finance+banking+dataset", "description": "Financial and banking datasets for analysis"}]
+        elif "retail" in query.lower() or "ecommerce" in query.lower():
+            return [{"name": "Retail Analytics Dataset", "type": "Kaggle Dataset", "url": "https://www.kaggle.com/search?q=retail+ecommerce+sales", "description": "Retail and e-commerce datasets"}]
+        elif "automotive" in query.lower() or "tesla" in query.lower():
+            return [{"name": "Automotive Industry Data", "type": "Kaggle Dataset", "url": "https://www.kaggle.com/search?q=automotive+vehicle+dataset", "description": "Automotive and vehicle datasets"}]
+        else:
+            return [{"name": f"{query.title()} Dataset", "type": "Kaggle Dataset", "url": f"https://www.kaggle.com/search?q={query.replace(' ', '+')}", "description": f"Search results for {query} datasets"}]
     
     def _fallback_github(self, query: str) -> List[Dict]:
-        return [{
-            "name": f"{query.title()} Repository",
-            "type": "GitHub Repository",
-            "url": f"https://github.com/search?q={query.replace(' ', '+')}+machine+learning",
-            "description": f"Search results for {query} repositories"
-        }]
+        # Industry-specific repository suggestions
+        if "healthcare" in query.lower() or "medical" in query.lower():
+            return [{"name": "Medical AI Repository", "type": "GitHub Repository", "url": "https://github.com/search?q=medical+healthcare+ai+machine+learning", "description": "Healthcare AI and medical ML repositories"}]
+        elif "finance" in query.lower() or "banking" in query.lower() or "financial" in query.lower():
+            return [{"name": "Financial ML Repository", "type": "GitHub Repository", "url": "https://github.com/search?q=finance+banking+machine+learning", "description": "Financial ML and banking AI repositories"}]
+        elif "retail" in query.lower() or "ecommerce" in query.lower():
+            return [{"name": "Retail AI Repository", "type": "GitHub Repository", "url": "https://github.com/search?q=retail+ecommerce+recommendation+ml", "description": "Retail AI and e-commerce ML repositories"}]
+        elif "automotive" in query.lower() or "tesla" in query.lower():
+            return [{"name": "Automotive AI Repository", "type": "GitHub Repository", "url": "https://github.com/search?q=automotive+vehicle+ai+autonomous", "description": "Automotive AI and autonomous vehicle repositories"}]
+        else:
+            return [{"name": f"{query.title()} Repository", "type": "GitHub Repository", "url": f"https://github.com/search?q={query.replace(' ', '+')}+machine+learning", "description": f"Search results for {query} repositories"}]
