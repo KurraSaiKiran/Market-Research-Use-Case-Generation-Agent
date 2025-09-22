@@ -232,7 +232,17 @@ class ResourceAgent:
         return keywords if keywords else ["machine learning"]
     
     def _fallback_kaggle(self, query: str) -> List[Dict]:
-        return []
+        return [{
+            "name": f"{query.title()} Dataset",
+            "type": "Kaggle Dataset", 
+            "url": f"https://www.kaggle.com/search?q={query.replace(' ', '+')}",
+            "description": f"Search results for {query} datasets"
+        }]
     
     def _fallback_github(self, query: str) -> List[Dict]:
-        return []
+        return [{
+            "name": f"{query.title()} Repository",
+            "type": "GitHub Repository",
+            "url": f"https://github.com/search?q={query.replace(' ', '+')}+machine+learning",
+            "description": f"Search results for {query} repositories"
+        }]
