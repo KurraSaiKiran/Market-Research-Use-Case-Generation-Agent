@@ -45,34 +45,56 @@ class ResearchAgent:
             return self._fallback_research(query)
     
     def _fallback_research(self, query: str) -> Dict:
-        """Fallback when APIs unavailable"""
-        industry_map = {
-            "tesla": "Automotive/Electric Vehicles",
-            "retail": "Retail & E-commerce", 
-            "healthcare": "Healthcare & Medical",
-            "finance": "Financial Services",
-            "manufacturing": "Manufacturing & Industrial",
-            "education": "Education Technology",
-            "agriculture": "Agriculture & Food Tech"
-        }
+        """Industry-specific fallback research data"""
+        query_lower = query.lower()
         
-        detected_industry = "Technology"
-        for key, value in industry_map.items():
-            if key in query.lower():
-                detected_industry = value
-                break
-        
-        if "industry" not in query.lower():
-            detected_industry = f"{query.title()} Industry"
-        
-        return {
-            "industry": detected_industry,
-            "company_offerings": ["Core business solutions", "Technology platforms", "Industry services"],
-            "focus_areas": ["Digital transformation", "AI adoption", "Process automation", "Innovation"],
-            "competitors": ["Industry leaders", "Market innovators", "Technology companies"],
-            "market_trends": ["AI integration", "Digital transformation", "Automation"],
-            "market_size": "Multi-billion dollar market with growth potential"
-        }
+        if "healthcare" in query_lower or "medical" in query_lower:
+            return {
+                "industry": "Healthcare & Medical Services",
+                "company_offerings": ["Medical devices", "Healthcare software", "Patient care services", "Clinical research", "Telemedicine"],
+                "focus_areas": ["Patient care improvement", "Medical AI adoption", "Healthcare digitization", "Clinical efficiency"],
+                "competitors": ["Johnson & Johnson", "Pfizer", "UnitedHealth Group", "Anthem", "CVS Health"],
+                "market_trends": ["AI-powered diagnostics", "Telemedicine expansion", "Personalized medicine", "Healthcare automation"],
+                "market_size": "$4.3 trillion global healthcare market with 7.9% CAGR"
+            }
+        elif "finance" in query_lower or "banking" in query_lower or "financial" in query_lower:
+            return {
+                "industry": "Financial Services & Banking",
+                "company_offerings": ["Banking services", "Investment platforms", "Payment solutions", "Risk management", "Financial technology"],
+                "focus_areas": ["Digital banking transformation", "Fintech innovation", "Risk management", "Customer experience"],
+                "competitors": ["JPMorgan Chase", "Bank of America", "Wells Fargo", "Goldman Sachs", "Morgan Stanley"],
+                "market_trends": ["Digital payments growth", "Cryptocurrency adoption", "AI fraud detection", "Open banking"],
+                "market_size": "$26.5 trillion global financial services market"
+            }
+        elif "retail" in query_lower or "ecommerce" in query_lower:
+            return {
+                "industry": "Retail & E-commerce",
+                "company_offerings": ["Consumer products", "E-commerce platforms", "Retail technology", "Supply chain solutions", "Customer analytics"],
+                "focus_areas": ["Omnichannel experience", "Supply chain optimization", "Customer personalization", "Digital transformation"],
+                "competitors": ["Amazon", "Walmart", "Target", "Alibaba", "Shopify"],
+                "market_trends": ["E-commerce growth", "Social commerce", "Sustainable retail", "AI personalization"],
+                "market_size": "$5.2 trillion global retail market with 6% growth"
+            }
+        elif "automotive" in query_lower or "tesla" in query_lower:
+            return {
+                "industry": "Automotive & Electric Vehicles",
+                "company_offerings": ["Electric vehicles", "Autonomous driving tech", "Battery systems", "Charging infrastructure", "Vehicle software"],
+                "focus_areas": ["Electric vehicle adoption", "Autonomous driving", "Sustainable transportation", "Smart manufacturing"],
+                "competitors": ["Tesla", "Ford", "General Motors", "Volkswagen", "Toyota"],
+                "market_trends": ["EV market expansion", "Autonomous vehicle development", "Battery technology advancement", "Smart mobility"],
+                "market_size": "$2.7 trillion global automotive market"
+            }
+        else:
+            # Generic fallback
+            detected_industry = f"{query.title()} Industry" if "industry" not in query_lower else query.title()
+            return {
+                "industry": detected_industry,
+                "company_offerings": ["Core business solutions", "Technology platforms", "Industry services"],
+                "focus_areas": ["Digital transformation", "AI adoption", "Process automation", "Innovation"],
+                "competitors": ["Industry leaders", "Market innovators", "Technology companies"],
+                "market_trends": ["AI integration", "Digital transformation", "Automation"],
+                "market_size": "Multi-billion dollar market with growth potential"
+            }
     
     def _extract_industry(self, query: str) -> str:
         if "industry" in query.lower():
@@ -169,42 +191,43 @@ class ResearchAgent:
         return "Multi-billion dollar market with growth opportunities"
     
     def _extract_company_offerings(self, query: str, data: Dict) -> List[str]:
-        """Extract company products and services from search results"""
+        """Extract industry-specific company offerings"""
+        query_lower = query.lower()
         offerings = []
         
-        if 'organic' in data:
-            for result in data['organic'][:5]:
-                snippet = result.get('snippet', '').lower()
-                title = result.get('title', '').lower()
-                
-                # Extract offerings from content
-                if any(word in snippet + title for word in ['products', 'services', 'solutions', 'platform']):
-                    # Extract specific offerings
+        # Industry-specific offerings based on query
+        if "healthcare" in query_lower or "medical" in query_lower:
+            offerings = ["Medical devices and equipment", "Healthcare software solutions", "Patient care services", "Clinical research tools", "Telemedicine platforms"]
+        elif "finance" in query_lower or "banking" in query_lower or "financial" in query_lower:
+            offerings = ["Financial services and products", "Banking solutions", "Investment platforms", "Risk management tools", "Payment processing systems"]
+        elif "retail" in query_lower or "ecommerce" in query_lower:
+            offerings = ["Consumer products and goods", "E-commerce platforms", "Retail technology solutions", "Supply chain services", "Customer experience tools"]
+        elif "automotive" in query_lower or "tesla" in query_lower:
+            offerings = ["Electric vehicles and components", "Autonomous driving technology", "Battery and energy systems", "Manufacturing solutions", "Vehicle software platforms"]
+        elif "education" in query_lower:
+            offerings = ["Educational technology platforms", "Learning management systems", "Online courses and content", "Student assessment tools", "Educational consulting services"]
+        else:
+            # Extract from search results for other industries
+            if 'organic' in data:
+                for result in data['organic'][:5]:
+                    snippet = result.get('snippet', '').lower()
+                    title = result.get('title', '').lower()
                     text = snippet + ' ' + title
+                    
                     if 'software' in text:
                         offerings.append("Software solutions")
                     if 'cloud' in text:
                         offerings.append("Cloud services")
                     if 'platform' in text:
                         offerings.append("Technology platform")
-                    if 'mobile' in text or 'app' in text:
-                        offerings.append("Mobile applications")
-                    if 'data' in text or 'analytics' in text:
-                        offerings.append("Data analytics services")
                     if 'consulting' in text:
                         offerings.append("Consulting services")
-                    if 'hardware' in text:
-                        offerings.append("Hardware products")
-                    if 'ai' in text or 'artificial intelligence' in text:
+                    if 'ai' in text:
                         offerings.append("AI-powered solutions")
+            
+            offerings = list(set(offerings))[:5] if offerings else ["Core business solutions", "Industry-specific services", "Technology platforms"]
         
-        # Remove duplicates
-        offerings = list(set(offerings))[:5]
-        
-        if not offerings:
-            offerings = ["Core business solutions", "Industry-specific services", "Technology platforms"]
-        
-        return offerings
+        return offerings[:5]
     
     def _get_fallback_offerings(self, query: str) -> List[str]:
         """Fallback company offerings"""
