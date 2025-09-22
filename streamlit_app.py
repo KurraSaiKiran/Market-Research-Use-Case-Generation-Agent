@@ -27,13 +27,6 @@ def main():
         border-radius: 15px;
         margin: 1rem 0;
     }
-    .agent-card {
-        background: white;
-        padding: 1rem;
-        border-radius: 10px;
-        text-align: center;
-        min-width: 150px;
-    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -46,18 +39,48 @@ def main():
     """, unsafe_allow_html=True)
     
     # Workflow
-    st.markdown("""
-    <div class="workflow-container">
-        <h3 style="text-align: center; margin-bottom: 1rem;">🔄 4-Agent Workflow</h3>
-        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-            <div class="agent-card">📊<br><b>Research</b><br><small>Industry Analysis</small></div>
-            <div style="font-size: 1.5rem; align-self: center;">→</div>
-            <div class="agent-card">💡<br><b>Use Cases</b><br><small>AI Solutions</small></div>
-            <div style="font-size: 1.5rem; align-self: center;">→</div>
-            <div class="agent-card">📚<br><b>Resources</b><br><small>Datasets & Models</small></div>
-            <div style="font-size: 1.5rem; align-self: center;">→</div>
-            <div class="agent-card">✨<br><b>Bonus</b><br><small>GenAI Solutions</small></div>
+    st.markdown("### 🔄 4-Agent Intelligent Workflow")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+            <div style="font-size: 2rem;">📊</div>
+            <b>Agent 1: Research</b><br>
+            <small>Industry Analysis & Trends</small>
         </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+            <div style="font-size: 2rem;">💡</div>
+            <b>Agent 2: Use Cases</b><br>
+            <small>AI/GenAI Solutions</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+            <div style="font-size: 2rem;">📚</div>
+            <b>Agent 3: Resources</b><br>
+            <small>Datasets & Models</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown("""
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+            <div style="font-size: 2rem;">✨</div>
+            <b>Agent 4: Bonus</b><br>
+            <small>GenAI Opportunities</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="text-align: center; margin: 1rem 0; font-size: 1.2rem; color: #667eea;">
+        📊 → 💡 → 📚 → ✨
     </div>
     """, unsafe_allow_html=True)
     
@@ -83,12 +106,24 @@ def main():
             st.write("This system requires API keys for real-time data fetching")
         
         st.markdown("---")
-        st.markdown("### 🎯 Usage Tips")
-        st.write("• Company: 'Tesla Motors', 'Apple Inc'")
-        st.write("• Industry: 'Healthcare Industry', 'Retail'")
-        st.write("• Requires API keys for real-time data")
-        st.write("• Analysis takes 30-60 seconds")
-        st.write("• All data fetched live from APIs")
+        st.markdown("### 📋 How to Use This Workflow")
+        
+        st.markdown("""
+        **🔄 4-Agent Process:**
+        1. **📊 Research Agent** - Analyzes industry trends, competitors, market size
+        2. **💡 Use Case Agent** - Generates 5-8 tailored AI/GenAI solutions
+        3. **📚 Resource Agent** - Finds real datasets from Kaggle, GitHub, HuggingFace
+        4. **✨ Bonus Agent** - Creates internal & customer-facing GenAI opportunities
+        
+        **📝 Input Examples:**
+        • Company: 'Tesla Motors', 'Apple Inc'
+        • Industry: 'Healthcare Industry', 'Retail'
+        
+        **⚙️ Requirements:**
+        • API keys required for real-time data
+        • Analysis takes 30-60 seconds
+        • All data fetched live from APIs
+        """)
     
     # Main interface
     st.markdown("---")
