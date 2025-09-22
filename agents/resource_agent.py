@@ -19,22 +19,28 @@ class ResourceAgent:
         return resources
     
     def _search_resources(self, use_case: str, description: str) -> List[Dict]:
-        """Search for relevant datasets and resources"""
+        """Search for relevant datasets and resources based on actual use case"""
+        print(f"[DEBUG] Searching resources for: {use_case}")
         resources = []
         
-        # Try Kaggle search
-        kaggle_results = self._search_kaggle(use_case)
+        # Extract keywords from use case and description
+        keywords = self._extract_keywords(use_case, description)
+        search_query = " ".join(keywords[:3])  # Use top 3 keywords
+        
+        # Try Kaggle search with specific keywords
+        kaggle_results = self._search_kaggle(search_query)
         resources.extend(kaggle_results)
         
-        # Try GitHub search  
-        github_results = self._search_github(use_case)
+        # Try GitHub search with specific keywords
+        github_results = self._search_github(search_query)
         resources.extend(github_results)
         
-        # Add HuggingFace models
-        hf_results = self._search_huggingface(use_case)
+        # Add HuggingFace models with specific keywords
+        hf_results = self._search_huggingface(search_query)
         resources.extend(hf_results)
         
-        return resources[:5]  # Limit to 5 resources per use case
+        print(f"[DEBUG] Found {len(resources)} resources for {use_case}")
+        return resources[:4]  # Limit to 4 resources per use case
     
     def _search_kaggle(self, query: str) -> List[Dict]:
         """Search Kaggle datasets using API"""
@@ -196,67 +202,48 @@ class ResourceAgent:
             "description": "General purpose language model for various NLP tasks"
         }]
     
+    def _extract_keywords(self, use_case: str, description: str) -> List[str]:
+        """Extract relevant keywords from use case and description"""
+        text = (use_case + " " + description).lower()
+        
+        # Common AI/ML keywords
+        keywords = []
+        if "predictive" in text or "forecasting" in text:
+            keywords.append("forecasting")
+        if "recommendation" in text or "personalization" in text:
+            keywords.append("recommendation")
+        if "image" in text or "vision" in text:
+            keywords.append("image")
+        if "text" in text or "nlp" in text:
+            keywords.append("text")
+        if "fraud" in text or "detection" in text:
+            keywords.append("fraud")
+        if "healthcare" in text or "medical" in text:
+            keywords.append("medical")
+        if "financial" in text or "finance" in text:
+            keywords.append("financial")
+        if "automation" in text:
+            keywords.append("automation")
+        if "optimization" in text:
+            keywords.append("optimization")
+        if "analytics" in text or "data" in text:
+            keywords.append("analytics")
+        
+        return keywords if keywords else ["machine learning"]
+    
     def _fallback_kaggle(self, query: str) -> List[Dict]:
-        dataset_map = {
-            "predictive": {
-                "name": "Sales Forecasting Dataset",
-                "url": "https://www.kaggle.com/datasets/shelvigarg/sales-forecasting-dataset",
-                "desc": "Time series data for demand prediction"
-            },
-            "recommendation": {
-                "name": "MovieLens 20M Dataset", 
-                "url": "https://www.kaggle.com/datasets/grouplens/movielens-20m-dataset",
-                "desc": "Movie ratings for recommendation systems"
-            },
-            "retail": {
-                "name": "E-commerce Dataset",
-                "url": "https://www.kaggle.com/datasets/carrie1/ecommerce-data",
-                "desc": "Online retail transaction data"
-            },
-            "automotive": {
-                "name": "Vehicle Dataset",
-                "url": "https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho",
-                "desc": "Car specifications and pricing data"
-            },
-            "fraud": {
-                "name": "Credit Card Fraud Detection",
-                "url": "https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud",
-                "desc": "Anonymized credit card transactions"
-            },
-            "image": {
-                "name": "ImageNet Dataset",
-                "url": "https://www.kaggle.com/competitions/imagenet-object-localization-challenge",
-                "desc": "Large-scale image classification dataset"
-            },
-            "text": {
-                "name": "IMDB Movie Reviews",
-                "url": "https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews",
-                "desc": "Sentiment analysis dataset"
-            }
-        }
-        
-        # Find best match
-        for key, data in dataset_map.items():
-            if key in query.lower():
-                return [{
-                    "name": data["name"],
-                    "type": "Kaggle Dataset",
-                    "url": data["url"],
-                    "description": data["desc"]
-                }]
-        
-        # Default fallback
+        # Return search URL instead of static datasets
         return [{
-            "name": f"{query.title()} Related Dataset",
+            "name": f"{query.title()} Dataset",
             "type": "Kaggle Dataset", 
             "url": f"https://www.kaggle.com/search?q={query.replace(' ', '+')}",
-            "description": f"Search results for {query} datasets on Kaggle"
+            "description": f"Kaggle datasets related to {query}"
         }]
     
     def _fallback_github(self, query: str) -> List[Dict]:
         return [{
-            "name": f"{query.replace(' ', '-')}-ml",
+            "name": f"{query.title()} ML Repository",
             "type": "GitHub Repository",
             "url": f"https://github.com/search?q={query.replace(' ', '+')}+machine+learning",
-            "description": f"ML implementation for {query}"
+            "description": f"GitHub repositories for {query} machine learning implementations"
         }]

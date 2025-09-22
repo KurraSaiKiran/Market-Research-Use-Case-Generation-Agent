@@ -39,63 +39,150 @@ class BonusAgent:
         }
     
     def generate_bonus_solutions(self, industry: str, use_cases: List[Dict]) -> Dict:
-        """Generate internal and customer-facing GenAI solutions"""
+        """Generate internal and customer-facing GenAI solutions based on industry"""
+        print(f"[DEBUG] Generating bonus solutions for: {industry}")
         
-        # Select relevant internal solutions
-        internal = list(self.internal_solutions.values())
+        # Generate industry-specific internal solutions
+        internal = self._generate_internal_solutions(industry, use_cases)
         
-        # Add industry-specific customer solutions
-        customer = self._get_customer_solutions(industry)
+        # Generate industry-specific customer solutions
+        customer = self._generate_customer_solutions(industry, use_cases)
         
         return {
             "internal_solutions": internal,
             "customer_solutions": customer,
-            "implementation_roadmap": self._create_roadmap(),
-            "roi_estimates": self._estimate_roi()
+            "implementation_roadmap": self._create_industry_roadmap(industry),
+            "roi_estimates": self._estimate_industry_roi(industry)
         }
     
-    def _get_customer_solutions(self, industry: str) -> List[Dict]:
-        """Get customer-facing solutions based on industry"""
-        base_solutions = list(self.customer_solutions.values())
+    def _generate_internal_solutions(self, industry: str, use_cases: List[Dict]) -> List[Dict]:
+        """Generate industry-specific internal solutions"""
+        solutions = []
         
-        # Add industry-specific solutions
-        if "retail" in industry.lower():
-            base_solutions.append({
-                "name": "Smart Shopping Assistant",
-                "description": "AI-powered product recommendations and shopping guidance",
-                "value": "Increased sales, better customer experience",
-                "implementation": "Computer vision + recommendation engine"
-            })
-        elif "healthcare" in industry.lower():
-            base_solutions.append({
-                "name": "Health Monitoring Assistant",
-                "description": "AI-driven health insights and appointment scheduling",
-                "value": "Better patient outcomes, operational efficiency",
-                "implementation": "Health data analysis + predictive modeling"
-            })
-        elif "finance" in industry.lower():
-            base_solutions.append({
-                "name": "Financial Advisory Bot",
-                "description": "Personalized financial advice and portfolio management",
-                "value": "Better investment decisions, customer retention",
-                "implementation": "Financial modeling + risk assessment AI"
+        # Always include report automation
+        solutions.append({
+            "name": f"{industry} Report Automation",
+            "description": f"AI-powered automated reporting and analytics for {industry}",
+            "value": "Reduce reporting time by 80%, ensure consistency",
+            "implementation": "LLM + industry data integration"
+        })
+        
+        # Add knowledge search
+        solutions.append({
+            "name": f"{industry} Knowledge Assistant",
+            "description": f"Intelligent search across {industry} documents and databases",
+            "value": "Faster information retrieval, improved decision making",
+            "implementation": "Vector embeddings + semantic search"
+        })
+        
+        # Add process optimization based on use cases
+        if any("automation" in uc['name'].lower() for uc in use_cases):
+            solutions.append({
+                "name": f"{industry} Process Intelligence",
+                "description": f"AI-powered workflow optimization for {industry} operations",
+                "value": "Improve efficiency by 60%, reduce operational costs",
+                "implementation": "Process mining + ML optimization"
             })
         
-        return base_solutions[:3]  # Limit to 3 solutions
+        return solutions[:3]
     
-    def _create_roadmap(self) -> List[Dict]:
-        """Create implementation roadmap"""
+    def _generate_customer_solutions(self, industry: str, use_cases: List[Dict]) -> List[Dict]:
+        """Generate industry-specific customer solutions"""
+        solutions = []
+        
+        # Industry-specific customer solutions
+        if "healthcare" in industry.lower():
+            solutions.extend([
+                {
+                    "name": "Patient Care Assistant",
+                    "description": "AI-powered patient support and health monitoring",
+                    "value": "Improve patient outcomes, 24/7 support",
+                    "implementation": "Health data analysis + conversational AI"
+                },
+                {
+                    "name": "Telemedicine AI Platform",
+                    "description": "Virtual health consultations with AI assistance",
+                    "value": "Expand access to care, reduce costs",
+                    "implementation": "Video platform + diagnostic AI"
+                }
+            ])
+        elif "finance" in industry.lower():
+            solutions.extend([
+                {
+                    "name": "Personal Finance AI Advisor",
+                    "description": "Intelligent financial planning and investment guidance",
+                    "value": "Personalized advice, better financial outcomes",
+                    "implementation": "Financial modeling + risk assessment"
+                },
+                {
+                    "name": "Smart Banking Assistant",
+                    "description": "AI-powered banking support and transaction insights",
+                    "value": "Enhanced customer experience, fraud prevention",
+                    "implementation": "NLP + transaction analysis"
+                }
+            ])
+        elif "retail" in industry.lower():
+            solutions.extend([
+                {
+                    "name": "Smart Shopping Companion",
+                    "description": "AI-powered product discovery and recommendations",
+                    "value": "Increase sales, improve customer satisfaction",
+                    "implementation": "Recommendation engine + computer vision"
+                },
+                {
+                    "name": "Virtual Style Assistant",
+                    "description": "AI-driven fashion and style recommendations",
+                    "value": "Personalized shopping, higher conversion",
+                    "implementation": "Image recognition + preference learning"
+                }
+            ])
+        else:
+            # Generic customer solutions
+            solutions.extend([
+                {
+                    "name": f"{industry} Customer Assistant",
+                    "description": f"AI-powered customer support for {industry}",
+                    "value": "24/7 support, reduced costs, improved satisfaction",
+                    "implementation": "Conversational AI + knowledge base"
+                },
+                {
+                    "name": f"{industry} Personalization Engine",
+                    "description": f"AI-driven personalization for {industry} customers",
+                    "value": "Increased engagement, better user experience",
+                    "implementation": "ML personalization + user behavior analysis"
+                }
+            ])
+        
+        return solutions[:2]
+    
+    def _create_industry_roadmap(self, industry: str) -> List[Dict]:
+        """Create industry-specific implementation roadmap"""
         return [
-            {"phase": "Phase 1 (0-3 months)", "focus": "Internal automation tools", "deliverables": "Report generator, Knowledge search"},
-            {"phase": "Phase 2 (3-6 months)", "focus": "Customer-facing solutions", "deliverables": "Chatbot, Personalization engine"},
-            {"phase": "Phase 3 (6-12 months)", "focus": "Advanced AI integration", "deliverables": "Voice assistant, Industry-specific solutions"}
+            {"phase": "Phase 1 (0-3 months)", "focus": f"{industry} internal automation", "deliverables": "Report automation, Knowledge assistant"},
+            {"phase": "Phase 2 (3-6 months)", "focus": f"{industry} customer solutions", "deliverables": "Customer assistant, Personalization engine"},
+            {"phase": "Phase 3 (6-12 months)", "focus": f"{industry} advanced AI", "deliverables": "Industry-specific AI solutions, Advanced analytics"}
         ]
     
-    def _estimate_roi(self) -> Dict:
-        """Estimate ROI for GenAI solutions"""
-        return {
-            "cost_savings": "30-50% reduction in operational costs",
-            "revenue_impact": "15-25% increase in customer engagement",
-            "efficiency_gains": "60-80% faster task completion",
-            "payback_period": "6-12 months for most solutions"
-        }
+    def _estimate_industry_roi(self, industry: str) -> Dict:
+        """Estimate industry-specific ROI"""
+        if "healthcare" in industry.lower():
+            return {
+                "cost_savings": "40-60% reduction in administrative costs",
+                "revenue_impact": "20-30% improvement in patient outcomes",
+                "efficiency_gains": "70-90% faster documentation and reporting",
+                "payback_period": "8-14 months for healthcare AI solutions"
+            }
+        elif "finance" in industry.lower():
+            return {
+                "cost_savings": "50-70% reduction in processing costs",
+                "revenue_impact": "25-35% increase in customer retention",
+                "efficiency_gains": "80-95% faster transaction processing",
+                "payback_period": "4-8 months for financial AI solutions"
+            }
+        else:
+            return {
+                "cost_savings": "30-50% reduction in operational costs",
+                "revenue_impact": "15-25% increase in customer engagement",
+                "efficiency_gains": "60-80% faster task completion",
+                "payback_period": "6-12 months for most solutions"
+            }

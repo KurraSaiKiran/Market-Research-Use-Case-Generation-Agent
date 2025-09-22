@@ -1,74 +1,23 @@
 from typing import Dict, List
+import requests
+import os
 
 class UseCaseAgent:
     def __init__(self):
-        self.use_case_templates = {
-            "automotive": [
-                {"name": "Predictive Maintenance", "description": "AI-powered vehicle maintenance prediction", "value": "Reduce downtime, lower costs"},
-                {"name": "Autonomous Driving", "description": "Computer vision for self-driving capabilities", "value": "Safety improvement, market differentiation"},
-                {"name": "Supply Chain Optimization", "description": "ML for inventory and logistics optimization", "value": "Cost reduction, efficiency gains"}
-            ],
-            "retail": [
-                {"name": "Demand Forecasting", "description": "AI-powered inventory prediction", "value": "Reduce stockouts, optimize inventory"},
-                {"name": "Personalized Recommendations", "description": "ML recommendation engine", "value": "Increase sales, customer satisfaction"},
-                {"name": "Dynamic Pricing", "description": "AI-driven price optimization", "value": "Revenue optimization, competitive advantage"}
-            ],
-            "healthcare": [
-                {"name": "Medical Image Analysis", "description": "AI for diagnostic imaging", "value": "Improved accuracy, faster diagnosis"},
-                {"name": "Drug Discovery", "description": "ML for pharmaceutical research", "value": "Accelerated development, cost reduction"},
-                {"name": "Patient Risk Assessment", "description": "Predictive analytics for patient outcomes", "value": "Better care, reduced readmissions"}
-            ],
-            "finance": [
-                {"name": "Fraud Detection", "description": "ML for real-time transaction monitoring", "value": "Risk reduction, compliance"},
-                {"name": "Credit Scoring", "description": "AI-powered loan approval systems", "value": "Better decisions, reduced defaults"},
-                {"name": "Algorithmic Trading", "description": "ML for automated investment strategies", "value": "Higher returns, reduced human error"}
-            ],
-            "manufacturing": [
-                {"name": "Quality Control", "description": "Computer vision for defect detection", "value": "Reduced waste, improved quality"},
-                {"name": "Production Optimization", "description": "AI for workflow and resource optimization", "value": "Increased efficiency, cost savings"},
-                {"name": "Equipment Monitoring", "description": "IoT + AI for machinery health tracking", "value": "Prevent breakdowns, extend lifespan"}
-            ],
-            "education": [
-                {"name": "Personalized Learning", "description": "AI-adaptive learning platforms", "value": "Better outcomes, engagement"},
-                {"name": "Automated Grading", "description": "NLP for assignment evaluation", "value": "Time savings, consistent feedback"},
-                {"name": "Student Analytics", "description": "Predictive models for student success", "value": "Early intervention, retention"}
-            ],
-            "agriculture": [
-                {"name": "Crop Monitoring", "description": "Satellite + AI for field analysis", "value": "Higher yields, resource optimization"},
-                {"name": "Precision Farming", "description": "IoT sensors with ML for smart irrigation", "value": "Water savings, improved productivity"},
-                {"name": "Pest Detection", "description": "Computer vision for early pest identification", "value": "Reduced crop loss, lower pesticide use"}
-            ],
-            "energy": [
-                {"name": "Smart Grid Management", "description": "AI for energy distribution optimization", "value": "Efficiency gains, cost reduction"},
-                {"name": "Renewable Forecasting", "description": "ML for solar/wind energy prediction", "value": "Better planning, grid stability"},
-                {"name": "Energy Consumption Analytics", "description": "AI for usage pattern analysis", "value": "Cost savings, sustainability"}
-            ],
-            "logistics": [
-                {"name": "Route Optimization", "description": "AI for delivery path planning", "value": "Fuel savings, faster delivery"},
-                {"name": "Warehouse Automation", "description": "Robotics + AI for inventory management", "value": "Efficiency, accuracy improvement"},
-                {"name": "Demand Planning", "description": "ML for logistics capacity forecasting", "value": "Cost optimization, service quality"}
-            ],
-            "media": [
-                {"name": "Content Recommendation", "description": "AI for personalized media suggestions", "value": "User engagement, retention"},
-                {"name": "Automated Editing", "description": "AI for video/audio content processing", "value": "Production speed, cost reduction"},
-                {"name": "Audience Analytics", "description": "ML for viewer behavior analysis", "value": "Better content strategy, ad targeting"}
-            ]
-        }
+        self.serper_key = os.getenv('SERPER_API_KEY')
     
     def generate_use_cases(self, research_data: Dict) -> List[Dict]:
-        """Generate AI/GenAI use cases based on research"""
-        industry = research_data.get("industry", "").lower()
+        """Generate AI/GenAI use cases based on real research data"""
+        industry = research_data.get("industry", "")
         focus_areas = research_data.get("focus_areas", [])
-        offerings = research_data.get("company_offerings", [])
         trends = research_data.get("market_trends", [])
         
-        print(f"[DEBUG] Generating use cases for industry: {industry}")
+        print(f"[DEBUG] Generating use cases for: {industry}")
         print(f"[DEBUG] Focus areas: {focus_areas}")
-        print(f"[DEBUG] Market trends: {trends}")
         
         use_cases = []
         
-        # Generate use cases from focus areas (priority)
+        # Generate use cases from focus areas
         for area in focus_areas[:4]:
             use_case = self._generate_use_case_from_focus_area(area, industry)
             if use_case and use_case not in use_cases:
@@ -80,164 +29,160 @@ class UseCaseAgent:
             if use_case and use_case not in use_cases:
                 use_cases.append(use_case)
         
-        # Add industry-specific template cases if needed
-        if len(use_cases) < 5:
-            template_cases = self._get_template_cases(industry)
-            for case in template_cases:
-                if case not in use_cases and len(use_cases) < 5:
-                    use_cases.append(case)
+        # Search for industry-specific AI use cases online
+        online_cases = self._search_industry_use_cases(industry)
+        for case in online_cases:
+            if case not in use_cases and len(use_cases) < 6:
+                use_cases.append(case)
         
-        # Add GenAI cases based on research
+        # Add GenAI cases
         genai_cases = self._add_genai_cases_from_research(research_data)
         for case in genai_cases:
-            if case not in use_cases and len(use_cases) < 7:
+            if case not in use_cases and len(use_cases) < 8:
                 use_cases.append(case)
         
         print(f"[DEBUG] Generated {len(use_cases)} use cases")
-        return use_cases[:7]
+        return use_cases[:8]
     
-    def _generic_use_cases(self) -> List[Dict]:
-        return [
-            {"name": "Process Automation", "description": "RPA with AI decision making", "value": "Efficiency, cost reduction"},
-            {"name": "Customer Support Chatbot", "description": "GenAI-powered customer service", "value": "24/7 support, cost savings"},
-            {"name": "Document Processing", "description": "AI for document analysis", "value": "Speed, accuracy improvement"}
-        ]
+    def _search_industry_use_cases(self, industry: str) -> List[Dict]:
+        """Search for real AI use cases for the industry"""
+        if not self.serper_key:
+            return []
+        
+        try:
+            url = "https://google.serper.dev/search"
+            payload = {"q": f"{industry} AI use cases applications machine learning examples"}
+            headers = {"X-API-KEY": self.serper_key, "Content-Type": "application/json"}
+            
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                return self._extract_use_cases_from_search(data, industry)
+        except Exception as e:
+            print(f"[DEBUG] Use case search failed: {e}")
+        
+        return []
+    
+    def _extract_use_cases_from_search(self, data: Dict, industry: str) -> List[Dict]:
+        """Extract use cases from search results"""
+        use_cases = []
+        
+        if 'organic' in data:
+            for result in data['organic'][:5]:
+                snippet = result.get('snippet', '').lower()
+                title = result.get('title', '')
+                
+                # Extract AI/ML use cases from content
+                if any(word in snippet for word in ['ai', 'machine learning', 'artificial intelligence', 'automation']):
+                    if 'predictive' in snippet:
+                        use_cases.append({
+                            "name": f"Predictive Analytics for {industry}",
+                            "description": f"AI-powered predictive modeling and forecasting for {industry}",
+                            "value": "Improve decision making, reduce risks, optimize operations"
+                        })
+                    elif 'recommendation' in snippet or 'personalization' in snippet:
+                        use_cases.append({
+                            "name": f"Intelligent Recommendation System",
+                            "description": f"AI-driven personalization and recommendation engine for {industry}",
+                            "value": "Increase engagement, improve user experience, boost revenue"
+                        })
+                    elif 'optimization' in snippet:
+                        use_cases.append({
+                            "name": f"AI-Powered Optimization",
+                            "description": f"Machine learning optimization solutions for {industry} operations",
+                            "value": "Reduce costs, improve efficiency, maximize resource utilization"
+                        })
+        
+        return use_cases[:3]
     
     def _generate_use_case_from_focus_area(self, focus_area: str, industry: str) -> Dict:
         """Generate use case based on focus area"""
         focus_area_lower = focus_area.lower()
         
-        # Industry-specific automation
         if "automation" in focus_area_lower:
-            if "healthcare" in industry:
-                return {"name": "Medical Process Automation", "description": "AI-powered patient workflow and clinical process automation", "value": "Reduce administrative burden by 70%, improve patient care"}
-            elif "finance" in industry:
-                return {"name": "Financial Process Automation", "description": "Automated loan processing, compliance, and risk assessment", "value": "Reduce processing time by 80%, ensure regulatory compliance"}
-            elif "retail" in industry:
-                return {"name": "Retail Operations Automation", "description": "Automated inventory management and supply chain optimization", "value": "Reduce stockouts by 60%, optimize inventory costs"}
-            else:
-                return {"name": "Intelligent Process Automation", "description": f"AI-powered workflow automation for {industry}", "value": "Reduce manual work by 60%, improve accuracy"}
-        
-        # Industry-specific customer experience
+            return {
+                "name": f"Intelligent Automation for {industry}",
+                "description": f"AI-powered process automation tailored for {industry} workflows",
+                "value": "Reduce manual work by 60-80%, improve accuracy and speed"
+            }
         elif "customer" in focus_area_lower:
-            if "healthcare" in industry:
-                return {"name": "Patient Experience AI", "description": "Personalized patient journey optimization and care coordination", "value": "Improve patient satisfaction by 45%, reduce wait times"}
-            elif "finance" in industry:
-                return {"name": "Financial Advisory AI", "description": "Personalized financial advice and customer service automation", "value": "Increase customer retention by 35%, reduce service costs"}
-            elif "retail" in industry:
-                return {"name": "Retail Personalization Engine", "description": "AI-driven product recommendations and customer journey optimization", "value": "Increase conversion rates by 40%, boost customer loyalty"}
-            else:
-                return {"name": "AI Customer Experience Platform", "description": f"Personalized customer interactions for {industry}", "value": "Increase satisfaction by 40%, reduce response time"}
-        
-        # Industry-specific digital transformation
+            return {
+                "name": f"AI Customer Intelligence",
+                "description": f"Advanced customer analytics and experience optimization for {industry}",
+                "value": "Increase customer satisfaction by 40%, reduce churn"
+            }
         elif "digital" in focus_area_lower:
-            if "healthcare" in industry:
-                return {"name": "Digital Health Platform", "description": "AI-powered telemedicine and digital patient management system", "value": "Expand patient reach by 300%, reduce operational costs"}
-            elif "finance" in industry:
-                return {"name": "Digital Banking Transformation", "description": "AI-driven mobile banking and digital financial services", "value": "Increase digital adoption by 250%, reduce branch costs"}
-            else:
-                return {"name": "Digital Transformation Suite", "description": f"AI-driven digital modernization for {industry}", "value": "Accelerate digital adoption, improve efficiency"}
-        
-        # Data and analytics
+            return {
+                "name": f"Digital AI Transformation",
+                "description": f"Comprehensive AI-driven digital transformation for {industry}",
+                "value": "Accelerate digital adoption, improve operational efficiency"
+            }
         elif "data" in focus_area_lower:
-            if "healthcare" in industry:
-                return {"name": "Clinical Data Intelligence", "description": "AI-powered analysis of patient data and clinical outcomes", "value": "Improve treatment outcomes by 30%, reduce costs"}
-            elif "finance" in industry:
-                return {"name": "Financial Risk Analytics", "description": "Real-time fraud detection and risk assessment platform", "value": "Reduce fraud losses by 85%, improve risk management"}
-            else:
-                return {"name": "AI Data Analytics Platform", "description": f"Advanced analytics and insights for {industry}", "value": "Data-driven decisions, predictive capabilities"}
-        
-        # Security and compliance
-        elif "security" in focus_area_lower or "compliance" in focus_area_lower:
-            return {"name": "AI Security & Compliance Suite", "description": f"Automated security monitoring and compliance management for {industry}", "value": "Reduce security incidents by 75%, ensure compliance"}
-        
-        # Sustainability
+            return {
+                "name": f"AI Data Intelligence Platform",
+                "description": f"Advanced data analytics and insights platform for {industry}",
+                "value": "Enable data-driven decisions, unlock hidden insights"
+            }
+        elif "security" in focus_area_lower:
+            return {
+                "name": f"AI Security & Risk Management",
+                "description": f"Intelligent security monitoring and risk assessment for {industry}",
+                "value": "Reduce security incidents by 75%, ensure compliance"
+            }
         elif "sustainability" in focus_area_lower:
-            return {"name": "Sustainability Intelligence Platform", "description": f"AI-powered ESG tracking and carbon footprint optimization for {industry}", "value": "Reduce carbon footprint by 40%, improve ESG scores"}
-        
-        return None
-    
-    def _generate_use_case_from_offering(self, offering: str, industry: str) -> Dict:
-        """Generate use case based on company offering"""
-        offering_lower = offering.lower()
-        
-        if "software" in offering_lower:
             return {
-                "name": "AI-Enhanced Software Solutions",
-                "description": f"Intelligent software platform for {industry}",
-                "value": "Smart automation, predictive features, user optimization"
-            }
-        elif "cloud" in offering_lower:
-            return {
-                "name": "AI Cloud Infrastructure",
-                "description": f"Intelligent cloud services for {industry}",
-                "value": "Scalable AI deployment, cost optimization, performance"
-            }
-        elif "platform" in offering_lower:
-            return {
-                "name": "AI-Powered Platform Enhancement",
-                "description": f"Intelligent platform capabilities for {industry}",
-                "value": "Enhanced user experience, automated workflows"
-            }
-        elif "mobile" in offering_lower or "app" in offering_lower:
-            return {
-                "name": "Intelligent Mobile Solutions",
-                "description": f"AI-driven mobile applications for {industry}",
-                "value": "Personalized experiences, predictive features"
-            }
-        elif "data" in offering_lower:
-            return {
-                "name": "AI Data Intelligence Suite",
-                "description": f"Advanced data processing and insights for {industry}",
-                "value": "Real-time analytics, predictive modeling"
+                "name": f"Sustainability AI Platform",
+                "description": f"AI-powered sustainability tracking and optimization for {industry}",
+                "value": "Reduce environmental impact, meet ESG goals"
             }
         
         return None
-    
-    def _get_template_cases(self, industry: str) -> List[Dict]:
-        """Get template cases for industry"""
-        for key in self.use_case_templates:
-            if key in industry:
-                return self.use_case_templates[key]
-        return self._generic_use_cases()
     
     def _generate_use_case_from_trend(self, trend: str, industry: str) -> Dict:
         """Generate use case based on market trend"""
         trend_lower = trend.lower()
         
         if "ai integration" in trend_lower:
-            return {"name": "AI-First Platform", "description": f"Comprehensive AI integration across {industry} operations", "value": "Transform business model, gain competitive advantage"}
+            return {
+                "name": f"AI-First {industry} Platform",
+                "description": f"Comprehensive AI integration across {industry} operations",
+                "value": "Transform business model, gain competitive advantage"
+            }
         elif "cloud" in trend_lower:
-            return {"name": "Cloud-Native AI Solutions", "description": f"Scalable cloud-based AI infrastructure for {industry}", "value": "Reduce infrastructure costs by 50%, improve scalability"}
-        elif "sustainability" in trend_lower:
-            return {"name": "Green AI Initiative", "description": f"AI-powered sustainability optimization for {industry}", "value": "Reduce environmental impact by 35%, meet ESG goals"}
+            return {
+                "name": f"Cloud-Native AI Solutions",
+                "description": f"Scalable cloud-based AI infrastructure for {industry}",
+                "value": "Reduce infrastructure costs, improve scalability"
+            }
         elif "cybersecurity" in trend_lower:
-            return {"name": "AI-Powered Cybersecurity", "description": f"Intelligent threat detection and response for {industry}", "value": "Reduce security incidents by 80%, faster threat response"}
+            return {
+                "name": f"AI-Powered Cybersecurity",
+                "description": f"Intelligent threat detection and response for {industry}",
+                "value": "Reduce security incidents by 80%, faster threat response"
+            }
         
         return None
     
     def _add_genai_cases_from_research(self, research_data: Dict) -> List[Dict]:
         """Generate GenAI cases based on research data"""
-        industry = research_data.get("industry", "").lower()
+        industry = research_data.get("industry", "")
         focus_areas = research_data.get("focus_areas", [])
         
         genai_cases = []
         
         # Industry-specific content generation
-        if "healthcare" in industry:
-            genai_cases.append({"name": "Medical Content AI", "description": "AI-powered medical documentation and patient communication generation", "value": "Reduce documentation time by 75%, improve patient communication"})
-        elif "finance" in industry:
-            genai_cases.append({"name": "Financial Report Generator", "description": "Automated financial analysis and regulatory report generation", "value": "Reduce reporting time by 80%, ensure compliance accuracy"})
-        else:
-            genai_cases.append({"name": "GenAI Content Creation", "description": f"AI-powered content generation for {industry} marketing and communications", "value": "Reduce content creation time by 70%, improve personalization"})
+        genai_cases.append({
+            "name": f"GenAI Content Platform for {industry}",
+            "description": f"AI-powered content generation and automation for {industry}",
+            "value": "Reduce content creation time by 70%, improve personalization"
+        })
         
         # Add conversational AI if customer focus exists
         if any("customer" in area.lower() for area in focus_areas):
-            if "healthcare" in industry:
-                genai_cases.append({"name": "Virtual Health Assistant", "description": "AI-powered patient support and medical query assistance", "value": "24/7 patient support, reduce call center load by 60%"})
-            elif "finance" in industry:
-                genai_cases.append({"name": "Financial Advisory Chatbot", "description": "Intelligent financial planning and investment advice assistant", "value": "Personalized advice at scale, reduce advisor workload by 40%"})
-            else:
-                genai_cases.append({"name": "Conversational AI Assistant", "description": f"Intelligent customer support for {industry}", "value": "24/7 support, reduce costs by 50%"})
+            genai_cases.append({
+                "name": f"Conversational AI Assistant",
+                "description": f"Intelligent virtual assistant for {industry} customer support",
+                "value": "24/7 support, reduce costs by 50%, improve satisfaction"
+            })
         
         return genai_cases[:2]
