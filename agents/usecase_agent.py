@@ -96,45 +96,44 @@ class UseCaseAgent:
         return use_cases[:3]
     
     def _generate_use_case_from_focus_area(self, focus_area: str, industry: str) -> Dict:
-        """Generate use case based on focus area"""
+        """Generate industry-specific use case based on focus area"""
         focus_area_lower = focus_area.lower()
+        industry_lower = industry.lower()
         
+        # Industry-specific use cases
+        if "healthcare" in industry_lower or "medical" in industry_lower:
+            if "automation" in focus_area_lower:
+                return {"name": "Medical Records Automation", "description": "AI-powered patient record processing and clinical workflow automation", "value": "Reduce administrative time by 70%, improve patient care"}
+            elif "data" in focus_area_lower:
+                return {"name": "Clinical Decision Support System", "description": "AI-driven diagnostic assistance and treatment recommendations", "value": "Improve diagnostic accuracy by 40%, reduce medical errors"}
+            elif "digital" in focus_area_lower:
+                return {"name": "Telemedicine AI Platform", "description": "Digital health monitoring and remote patient care with AI", "value": "Expand healthcare access, reduce costs by 30%"}
+        
+        elif "finance" in industry_lower or "banking" in industry_lower:
+            if "automation" in focus_area_lower:
+                return {"name": "Automated Risk Assessment", "description": "AI-powered credit scoring and fraud detection system", "value": "Reduce fraud by 85%, faster loan approvals"}
+            elif "data" in focus_area_lower:
+                return {"name": "Financial Analytics Platform", "description": "Real-time market analysis and investment insights", "value": "Improve investment returns by 25%, reduce risks"}
+        
+        elif "retail" in industry_lower or "e-commerce" in industry_lower:
+            if "automation" in focus_area_lower:
+                return {"name": "Inventory Management AI", "description": "Automated stock optimization and demand forecasting", "value": "Reduce inventory costs by 40%, prevent stockouts"}
+            elif "customer" in focus_area_lower:
+                return {"name": "Personalized Shopping Experience", "description": "AI-driven product recommendations and customer journey optimization", "value": "Increase sales by 35%, improve customer retention"}
+        
+        elif "automotive" in industry_lower or "tesla" in industry_lower:
+            if "automation" in focus_area_lower:
+                return {"name": "Autonomous Vehicle Systems", "description": "AI-powered self-driving technology and safety systems", "value": "Reduce accidents by 90%, enable autonomous transport"}
+            elif "data" in focus_area_lower:
+                return {"name": "Vehicle Performance Analytics", "description": "Real-time vehicle diagnostics and predictive maintenance", "value": "Reduce maintenance costs by 50%, improve reliability"}
+        
+        # Generic fallback
         if "automation" in focus_area_lower:
-            return {
-                "name": f"Intelligent Automation for {industry}",
-                "description": f"AI-powered process automation tailored for {industry} workflows",
-                "value": "Reduce manual work by 60-80%, improve accuracy and speed"
-            }
-        elif "customer" in focus_area_lower:
-            return {
-                "name": f"AI Customer Intelligence",
-                "description": f"Advanced customer analytics and experience optimization for {industry}",
-                "value": "Increase customer satisfaction by 40%, reduce churn"
-            }
-        elif "digital" in focus_area_lower:
-            return {
-                "name": f"Digital AI Transformation",
-                "description": f"Comprehensive AI-driven digital transformation for {industry}",
-                "value": "Accelerate digital adoption, improve operational efficiency"
-            }
+            return {"name": f"Process Automation for {industry}", "description": f"AI-powered workflow automation for {industry}", "value": "Reduce manual work by 60%, improve efficiency"}
         elif "data" in focus_area_lower:
-            return {
-                "name": f"AI Data Intelligence Platform",
-                "description": f"Advanced data analytics and insights platform for {industry}",
-                "value": "Enable data-driven decisions, unlock hidden insights"
-            }
-        elif "security" in focus_area_lower:
-            return {
-                "name": f"AI Security & Risk Management",
-                "description": f"Intelligent security monitoring and risk assessment for {industry}",
-                "value": "Reduce security incidents by 75%, ensure compliance"
-            }
-        elif "sustainability" in focus_area_lower:
-            return {
-                "name": f"Sustainability AI Platform",
-                "description": f"AI-powered sustainability tracking and optimization for {industry}",
-                "value": "Reduce environmental impact, meet ESG goals"
-            }
+            return {"name": f"Data Intelligence Platform", "description": f"Advanced analytics and insights for {industry}", "value": "Enable data-driven decisions, unlock insights"}
+        elif "digital" in focus_area_lower:
+            return {"name": f"Digital Transformation Suite", "description": f"Comprehensive digitization for {industry}", "value": "Accelerate digital adoption, improve operations"}
         
         return None
     
@@ -164,25 +163,32 @@ class UseCaseAgent:
         return None
     
     def _add_genai_cases_from_research(self, research_data: Dict) -> List[Dict]:
-        """Generate GenAI cases based on research data"""
+        """Generate industry-specific GenAI cases"""
         industry = research_data.get("industry", "")
-        focus_areas = research_data.get("focus_areas", [])
+        industry_lower = industry.lower()
         
         genai_cases = []
         
-        # Industry-specific content generation
-        genai_cases.append({
-            "name": f"GenAI Content Platform for {industry}",
-            "description": f"AI-powered content generation and automation for {industry}",
-            "value": "Reduce content creation time by 70%, improve personalization"
-        })
+        # Industry-specific GenAI solutions
+        if "healthcare" in industry_lower:
+            genai_cases.append({"name": "Medical Report Generator", "description": "AI-powered generation of patient reports and clinical documentation", "value": "Reduce documentation time by 80%, improve accuracy"})
+            genai_cases.append({"name": "Patient Communication Assistant", "description": "GenAI chatbot for patient queries and appointment scheduling", "value": "24/7 patient support, reduce staff workload by 60%"})
         
-        # Add conversational AI if customer focus exists
-        if any("customer" in area.lower() for area in focus_areas):
-            genai_cases.append({
-                "name": f"Conversational AI Assistant",
-                "description": f"Intelligent virtual assistant for {industry} customer support",
-                "value": "24/7 support, reduce costs by 50%, improve satisfaction"
-            })
+        elif "finance" in industry_lower:
+            genai_cases.append({"name": "Financial Report Automation", "description": "Automated generation of financial reports and compliance documents", "value": "Reduce reporting time by 75%, ensure compliance"})
+            genai_cases.append({"name": "Investment Advisory Chatbot", "description": "AI assistant for personalized investment advice and portfolio management", "value": "Improve client engagement, reduce advisory costs"})
+        
+        elif "retail" in industry_lower:
+            genai_cases.append({"name": "Product Description Generator", "description": "Automated creation of product descriptions and marketing content", "value": "Scale content creation by 10x, improve SEO"})
+            genai_cases.append({"name": "Virtual Shopping Assistant", "description": "AI-powered shopping guide and customer service chatbot", "value": "Increase conversion by 45%, reduce support costs"})
+        
+        elif "automotive" in industry_lower or "tesla" in industry_lower:
+            genai_cases.append({"name": "Vehicle Manual Generator", "description": "AI-generated user manuals and technical documentation", "value": "Reduce documentation costs by 70%, improve clarity"})
+            genai_cases.append({"name": "Customer Service AI", "description": "Intelligent assistant for vehicle support and troubleshooting", "value": "24/7 customer support, reduce service calls by 50%"})
+        
+        else:
+            # Generic GenAI cases
+            genai_cases.append({"name": f"Content Generation Platform", "description": f"AI-powered content creation for {industry}", "value": "Reduce content creation time by 70%"})
+            genai_cases.append({"name": f"Industry Assistant Chatbot", "description": f"Intelligent virtual assistant for {industry}", "value": "24/7 support, improve customer satisfaction"})
         
         return genai_cases[:2]

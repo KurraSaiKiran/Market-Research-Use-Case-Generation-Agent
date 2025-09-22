@@ -57,32 +57,29 @@ class BonusAgent:
     
     def _generate_internal_solutions(self, industry: str, use_cases: List[Dict]) -> List[Dict]:
         """Generate industry-specific internal solutions"""
+        industry_lower = industry.lower()
         solutions = []
         
-        # Always include report automation
-        solutions.append({
-            "name": f"{industry} Report Automation",
-            "description": f"AI-powered automated reporting and analytics for {industry}",
-            "value": "Reduce reporting time by 80%, ensure consistency",
-            "implementation": "LLM + industry data integration"
-        })
+        if "healthcare" in industry_lower:
+            solutions.append({"name": "Clinical Data Analytics", "description": "AI-powered analysis of patient data and treatment outcomes", "value": "Improve treatment protocols, reduce costs by 25%", "implementation": "Medical data mining + predictive analytics"})
+            solutions.append({"name": "Staff Scheduling Optimizer", "description": "Intelligent scheduling for medical staff and resources", "value": "Optimize staff utilization, reduce overtime by 40%", "implementation": "ML scheduling algorithms + workforce analytics"})
         
-        # Add knowledge search
-        solutions.append({
-            "name": f"{industry} Knowledge Assistant",
-            "description": f"Intelligent search across {industry} documents and databases",
-            "value": "Faster information retrieval, improved decision making",
-            "implementation": "Vector embeddings + semantic search"
-        })
+        elif "finance" in industry_lower:
+            solutions.append({"name": "Risk Assessment Automation", "description": "Automated risk analysis and compliance monitoring", "value": "Reduce risk assessment time by 70%, improve accuracy", "implementation": "ML risk models + regulatory compliance APIs"})
+            solutions.append({"name": "Trading Algorithm Optimizer", "description": "AI-powered trading strategy optimization and backtesting", "value": "Improve trading performance by 30%, reduce losses", "implementation": "Reinforcement learning + market data analysis"})
         
-        # Add process optimization based on use cases
-        if any("automation" in uc['name'].lower() for uc in use_cases):
-            solutions.append({
-                "name": f"{industry} Process Intelligence",
-                "description": f"AI-powered workflow optimization for {industry} operations",
-                "value": "Improve efficiency by 60%, reduce operational costs",
-                "implementation": "Process mining + ML optimization"
-            })
+        elif "retail" in industry_lower:
+            solutions.append({"name": "Demand Forecasting System", "description": "AI-powered inventory and demand prediction", "value": "Reduce inventory costs by 35%, prevent stockouts", "implementation": "Time series forecasting + sales analytics"})
+            solutions.append({"name": "Price Optimization Engine", "description": "Dynamic pricing based on market conditions and demand", "value": "Increase profit margins by 20%, stay competitive", "implementation": "ML pricing models + competitor analysis"})
+        
+        elif "automotive" in industry_lower or "tesla" in industry_lower:
+            solutions.append({"name": "Manufacturing Quality Control", "description": "AI-powered defect detection and quality assurance", "value": "Reduce defects by 80%, improve production efficiency", "implementation": "Computer vision + quality control systems"})
+            solutions.append({"name": "Supply Chain Optimizer", "description": "Intelligent supply chain management and logistics", "value": "Reduce supply chain costs by 30%, improve delivery times", "implementation": "ML optimization + IoT sensors"})
+        
+        else:
+            # Generic solutions
+            solutions.append({"name": f"{industry} Analytics Platform", "description": f"Comprehensive data analytics for {industry}", "value": "Improve decision making, reduce costs by 25%", "implementation": "Data pipeline + ML analytics"})
+            solutions.append({"name": f"{industry} Process Automation", "description": f"Workflow automation for {industry} operations", "value": "Reduce manual work by 60%, improve efficiency", "implementation": "RPA + AI workflow optimization"})
         
         return solutions[:3]
     
@@ -90,67 +87,32 @@ class BonusAgent:
         """Generate industry-specific customer solutions"""
         solutions = []
         
-        # Industry-specific customer solutions
-        if "healthcare" in industry.lower():
+        industry_lower = industry.lower()
+        
+        if "healthcare" in industry_lower:
             solutions.extend([
-                {
-                    "name": "Patient Care Assistant",
-                    "description": "AI-powered patient support and health monitoring",
-                    "value": "Improve patient outcomes, 24/7 support",
-                    "implementation": "Health data analysis + conversational AI"
-                },
-                {
-                    "name": "Telemedicine AI Platform",
-                    "description": "Virtual health consultations with AI assistance",
-                    "value": "Expand access to care, reduce costs",
-                    "implementation": "Video platform + diagnostic AI"
-                }
+                {"name": "Patient Health Companion", "description": "AI-powered personal health monitoring and wellness guidance", "value": "Improve patient engagement, reduce hospital readmissions by 30%", "implementation": "Wearable integration + health analytics"},
+                {"name": "Symptom Checker & Triage", "description": "AI assistant for initial symptom assessment and care recommendations", "value": "Reduce unnecessary visits by 40%, improve care access", "implementation": "Medical knowledge base + diagnostic algorithms"}
             ])
-        elif "finance" in industry.lower():
+        elif "finance" in industry_lower:
             solutions.extend([
-                {
-                    "name": "Personal Finance AI Advisor",
-                    "description": "Intelligent financial planning and investment guidance",
-                    "value": "Personalized advice, better financial outcomes",
-                    "implementation": "Financial modeling + risk assessment"
-                },
-                {
-                    "name": "Smart Banking Assistant",
-                    "description": "AI-powered banking support and transaction insights",
-                    "value": "Enhanced customer experience, fraud prevention",
-                    "implementation": "NLP + transaction analysis"
-                }
+                {"name": "Personal Wealth Manager", "description": "AI-driven investment advice and portfolio optimization", "value": "Improve investment returns by 25%, reduce fees", "implementation": "Portfolio optimization + market analysis"},
+                {"name": "Smart Expense Tracker", "description": "Intelligent spending analysis and budgeting assistant", "value": "Help customers save 20% more, improve financial health", "implementation": "Transaction categorization + spending insights"}
             ])
-        elif "retail" in industry.lower():
+        elif "retail" in industry_lower:
             solutions.extend([
-                {
-                    "name": "Smart Shopping Companion",
-                    "description": "AI-powered product discovery and recommendations",
-                    "value": "Increase sales, improve customer satisfaction",
-                    "implementation": "Recommendation engine + computer vision"
-                },
-                {
-                    "name": "Virtual Style Assistant",
-                    "description": "AI-driven fashion and style recommendations",
-                    "value": "Personalized shopping, higher conversion",
-                    "implementation": "Image recognition + preference learning"
-                }
+                {"name": "Visual Search & Discovery", "description": "AI-powered product search using images and preferences", "value": "Increase conversion by 50%, improve user experience", "implementation": "Computer vision + recommendation engine"},
+                {"name": "Virtual Try-On Experience", "description": "AR/AI-powered virtual fitting and product visualization", "value": "Reduce returns by 35%, increase customer confidence", "implementation": "AR technology + body measurement AI"}
+            ])
+        elif "automotive" in industry_lower or "tesla" in industry_lower:
+            solutions.extend([
+                {"name": "Intelligent Vehicle Assistant", "description": "AI-powered in-car assistant for navigation and vehicle control", "value": "Enhance driving experience, improve safety by 40%", "implementation": "Voice AI + vehicle integration"},
+                {"name": "Predictive Maintenance Alerts", "description": "AI-driven vehicle health monitoring and maintenance predictions", "value": "Reduce breakdowns by 60%, extend vehicle life", "implementation": "IoT sensors + predictive analytics"}
             ])
         else:
-            # Generic customer solutions
             solutions.extend([
-                {
-                    "name": f"{industry} Customer Assistant",
-                    "description": f"AI-powered customer support for {industry}",
-                    "value": "24/7 support, reduced costs, improved satisfaction",
-                    "implementation": "Conversational AI + knowledge base"
-                },
-                {
-                    "name": f"{industry} Personalization Engine",
-                    "description": f"AI-driven personalization for {industry} customers",
-                    "value": "Increased engagement, better user experience",
-                    "implementation": "ML personalization + user behavior analysis"
-                }
+                {"name": f"{industry} Smart Assistant", "description": f"Intelligent customer support and guidance for {industry}", "value": "24/7 support, improve satisfaction by 40%", "implementation": "Conversational AI + domain knowledge"},
+                {"name": f"{industry} Personalization Hub", "description": f"AI-driven personalized experiences for {industry} customers", "value": "Increase engagement by 35%, improve retention", "implementation": "ML personalization + behavior analysis"}
             ])
         
         return solutions[:2]
