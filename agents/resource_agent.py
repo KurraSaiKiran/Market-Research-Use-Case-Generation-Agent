@@ -46,7 +46,7 @@ class ResourceAgent:
         """Search Kaggle datasets using API"""
         try:
             if not self.kaggle_key:
-                return self._fallback_kaggle(query)
+                raise Exception("KAGGLE_KEY required for dataset search")
             
             # Use Kaggle API search
             url = "https://www.kaggle.com/api/v1/datasets/list"
@@ -75,11 +75,11 @@ class ResourceAgent:
                 
                 return resources if resources else self._fallback_kaggle(query)
             else:
-                return self._fallback_kaggle(query)
+                raise Exception("Kaggle API failed - check KAGGLE_KEY")
                 
         except Exception as e:
             print(f"Kaggle API error: {e}")
-            return self._fallback_kaggle(query)
+            return []
     
     def _search_github(self, query: str) -> List[Dict]:
         """Search GitHub repositories"""
@@ -111,11 +111,11 @@ class ResourceAgent:
                 return resources
             else:
                 print(f"GitHub API error: {response.status_code}")
-                return self._fallback_github(query)
+                return []
                 
         except Exception as e:
             print(f"GitHub search error: {e}")
-            return self._fallback_github(query)
+            return []
     
     def _search_huggingface(self, query: str) -> List[Dict]:
         """Search HuggingFace models using API"""

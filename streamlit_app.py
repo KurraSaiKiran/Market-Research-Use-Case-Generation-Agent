@@ -44,37 +44,37 @@ def main():
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea; color: #2c3e50;">
             <div style="font-size: 2rem;">📊</div>
-            <b>Agent 1: Research</b><br>
-            <small>Industry Analysis & Trends</small>
+            <div style="font-weight: bold; font-size: 1rem; margin: 0.5rem 0;">Agent 1: Research</div>
+            <div style="font-size: 0.85rem; color: #666;">Industry Analysis & Trends</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea; color: #2c3e50;">
             <div style="font-size: 2rem;">💡</div>
-            <b>Agent 2: Use Cases</b><br>
-            <small>AI/GenAI Solutions</small>
+            <div style="font-weight: bold; font-size: 1rem; margin: 0.5rem 0;">Agent 2: Use Cases</div>
+            <div style="font-size: 0.85rem; color: #666;">AI/GenAI Solutions</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea; color: #2c3e50;">
             <div style="font-size: 2rem;">📚</div>
-            <b>Agent 3: Resources</b><br>
-            <small>Datasets & Models</small>
+            <div style="font-weight: bold; font-size: 1rem; margin: 0.5rem 0;">Agent 3: Resources</div>
+            <div style="font-size: 0.85rem; color: #666;">Datasets & Models</div>
         </div>
         """, unsafe_allow_html=True)
     
     with col4:
         st.markdown("""
-        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea;">
+        <div style="background: white; padding: 1rem; border-radius: 10px; text-align: center; border: 2px solid #667eea; color: #2c3e50;">
             <div style="font-size: 2rem;">✨</div>
-            <b>Agent 4: Bonus</b><br>
-            <small>GenAI Opportunities</small>
+            <div style="font-weight: bold; font-size: 1rem; margin: 0.5rem 0;">Agent 4: Bonus</div>
+            <div style="font-size: 0.85rem; color: #666;">GenAI Opportunities</div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -86,26 +86,6 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.markdown("### ⚙️ System Status")
-        
-        if os.path.exists(".env"):
-            st.success("✅ Configuration Active")
-            
-            api_keys = {
-                "SERPER_API_KEY": "🔍 Web Search",
-                "GITHUB_TOKEN": "🐙 GitHub Access", 
-                "KAGGLE_KEY": "📊 Kaggle Datasets",
-                "HUGGINGFACE_API_KEY": "🤗 HuggingFace Models"
-            }
-            
-            for key, name in api_keys.items():
-                status = "✅" if os.getenv(key) else "🟡"
-                st.write(f"{status} {name}")
-        else:
-            st.error("❌ API Keys Required")
-            st.write("This system requires API keys for real-time data fetching")
-        
-        st.markdown("---")
         st.markdown("### 📋 How to Use This Workflow")
         
         st.markdown("""
@@ -152,9 +132,24 @@ def main():
     
     if st.button("🚀 Start AI Research", use_container_width=True):
         if query:
-            # Check API keys first
+            # Load environment variables
+            from dotenv import load_dotenv
+            load_dotenv()
+            
+            # Check API keys
+            missing_keys = []
             if not os.getenv('SERPER_API_KEY'):
-                st.error("❌ SERPER_API_KEY required for real-time research")
+                missing_keys.append('SERPER_API_KEY')
+            if not os.getenv('GITHUB_TOKEN'):
+                missing_keys.append('GITHUB_TOKEN')
+            if not os.getenv('KAGGLE_KEY'):
+                missing_keys.append('KAGGLE_KEY')
+            if not os.getenv('HUGGINGFACE_API_KEY'):
+                missing_keys.append('HUGGINGFACE_API_KEY')
+            
+            if missing_keys:
+                st.error(f"❌ Missing API keys: {', '.join(missing_keys)}")
+                st.info("All API keys are required for real-time data fetching")
                 st.stop()
             
             # Progress tracking
