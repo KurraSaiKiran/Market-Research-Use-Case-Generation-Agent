@@ -19,16 +19,18 @@ class ResearchAgent:
     
     def _search_serper(self, query: str) -> Dict:
         url = "https://google.serper.dev/search"
-        payload = {"q": f"{query} industry analysis market size competitors"}
+        payload = {"q": f"{query} industry trends market analysis AI use cases 2024"}
         headers = {
             "X-API-KEY": self.serper_key,
             "Content-Type": "application/json"
         }
         
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            print(f"[DEBUG] Calling Serper API for: {query}")
+            response = requests.post(url, json=payload, headers=headers, timeout=15)
             response.raise_for_status()
             data = response.json()
+            print(f"[DEBUG] Serper API response received: {len(data.get('organic', []))} results")
             
             return {
                 "industry": self._extract_industry(query),
@@ -39,7 +41,7 @@ class ResearchAgent:
                 "market_size": self._extract_market_size(data)
             }
         except Exception as e:
-            print(f"Serper API error: {e}")
+            print(f"[ERROR] Serper API failed: {e}")
             return self._fallback_research(query)
     
     def _fallback_research(self, query: str) -> Dict:
@@ -97,60 +99,68 @@ class ResearchAgent:
             return f"{query.title()} Industry"
     
     def _extract_focus_areas(self, data: Dict) -> List[str]:
-        focus_areas = []
+        focus_areas = set()
         
-        if 'organic' in data:
-            for result in data['organic'][:5]:
+        if 'organic' in data and data['organic']:
+            print(f"[DEBUG] Extracting focus areas from {len(data['organic'])} results")
+            
+            for result in data['organic'][:8]:
                 snippet = result.get('snippet', '').lower()
                 title = result.get('title', '').lower()
+                text = snippet + ' ' + title
                 
-                # Extract focus areas from content
-                if any(word in snippet + title for word in ['automation', 'automate']):
-                    focus_areas.append("Process automation")
-                if any(word in snippet + title for word in ['customer', 'client', 'user']):
-                    focus_areas.append("Customer experience")
-                if any(word in snippet + title for word in ['digital', 'technology', 'tech']):
-                    focus_areas.append("Digital transformation")
-                if any(word in snippet + title for word in ['ai', 'artificial intelligence', 'machine learning']):
-                    focus_areas.append("AI adoption")
-                if any(word in snippet + title for word in ['efficiency', 'optimize', 'streamline']):
-                    focus_areas.append("Operational efficiency")
-                if any(word in snippet + title for word in ['innovation', 'innovative', 'disrupt']):
-                    focus_areas.append("Innovation initiatives")
-                if any(word in snippet + title for word in ['supply chain', 'logistics']):
-                    focus_areas.append("Supply chain optimization")
-                if any(word in snippet + title for word in ['data', 'analytics', 'insights']):
-                    focus_areas.append("Data-driven decision making")
+                # Industry-specific focus areas
+                if any(word in text for word in ['automation', 'automate', 'robotic']):
+                    focus_areas.add("Process automation")
+                if any(word in text for word in ['customer', 'client', 'user experience', 'cx']):
+                    focus_areas.add("Customer experience enhancement")
+                if any(word in text for word in ['digital transformation', 'digitalization', 'digital']):
+                    focus_areas.add("Digital transformation")
+                if any(word in text for word in ['ai', 'artificial intelligence', 'machine learning', 'ml']):
+                    focus_areas.add("AI adoption")
+                if any(word in text for word in ['efficiency', 'optimize', 'streamline', 'productivity']):
+                    focus_areas.add("Operational efficiency")
+                if any(word in text for word in ['innovation', 'innovative', 'disrupt', 'emerging']):
+                    focus_areas.add("Innovation initiatives")
+                if any(word in text for word in ['supply chain', 'logistics', 'procurement']):
+                    focus_areas.add("Supply chain optimization")
+                if any(word in text for word in ['data analytics', 'big data', 'insights', 'business intelligence']):
+                    focus_areas.add("Data-driven decision making")
+                if any(word in text for word in ['sustainability', 'green', 'environmental', 'esg']):
+                    focus_areas.add("Sustainability initiatives")
+                if any(word in text for word in ['cybersecurity', 'security', 'privacy', 'compliance']):
+                    focus_areas.add("Security and compliance")
         
-        # Remove duplicates and return top 5
-        return list(set(focus_areas))[:5] if focus_areas else ["Digital transformation", "AI adoption", "Operational efficiency"]
+        result_areas = list(focus_areas)[:6]
+        print(f"[DEBUG] Extracted focus areas: {result_areas}")
+        return result_areas if result_areas else ["Digital transformation", "AI adoption", "Operational efficiency"]
     
     def _extract_competitors(self, data: Dict) -> List[str]:
-        competitors = []
+        competitors = set()
         
-        if 'organic' in data:
-            for result in data['organic'][:5]:
-                title = result.get('title', '').lower()
-                snippet = result.get('snippet', '').lower()
+        if 'organic' in data and data['organic']:
+            for result in data['organic'][:6]:
+                title = result.get('title', '')
+                snippet = result.get('snippet', '')
+                text = (title + ' ' + snippet).lower()
                 
-                # Look for competitor mentions
-                if any(word in title + snippet for word in ['vs', 'versus', 'competitor', 'rival', 'alternative']):
-                    # Extract company names from title
-                    clean_title = result.get('title', '')[:80]
-                    competitors.append(clean_title)
+                # Extract competitor information
+                if any(word in text for word in ['vs', 'versus', 'competitor', 'rival', 'alternative', 'comparison']):
+                    competitors.add(title[:70] + '...' if len(title) > 70 else title)
                 
-                # Look for market leader mentions
-                if any(word in title + snippet for word in ['leader', 'top', 'best', 'leading']):
-                    clean_title = result.get('title', '')[:80]
-                    competitors.append(f"Market leader: {clean_title}")
+                if any(word in text for word in ['top companies', 'leading', 'market leader', 'industry leader']):
+                    competitors.add(f"Leading companies: {title[:50]}...")
+                
+                if any(word in text for word in ['fortune 500', 'biggest', 'largest', 'major players']):
+                    competitors.add(f"Major players: {title[:50]}...")
         
-        # Remove duplicates and limit
-        competitors = list(set(competitors))[:4]
+        result_competitors = list(competitors)[:4]
+        print(f"[DEBUG] Extracted competitors: {len(result_competitors)} found")
         
-        if not competitors:
-            competitors = ["Industry leaders and competitors", "Market innovators"]
+        if not result_competitors:
+            result_competitors = ["Industry leaders and competitors", "Market innovators"]
         
-        return competitors
+        return result_competitors
     
     def _extract_market_size(self, data: Dict) -> str:
         # Try to extract market size from search results
@@ -213,37 +223,39 @@ class ResearchAgent:
     
     def _extract_market_trends(self, data: Dict) -> List[str]:
         """Extract market trends from search results"""
-        trends = []
+        trends = set()
         
-        if 'organic' in data:
-            for result in data['organic'][:5]:
+        if 'organic' in data and data['organic']:
+            for result in data['organic'][:8]:
                 snippet = result.get('snippet', '').lower()
                 title = result.get('title', '').lower()
                 text = snippet + ' ' + title
                 
-                # Extract trends from content
-                if any(word in text for word in ['trend', 'trending', 'growth']):
-                    if 'ai' in text or 'artificial intelligence' in text:
-                        trends.append("AI integration trend")
-                    if 'digital' in text:
-                        trends.append("Digital transformation")
-                    if 'cloud' in text:
-                        trends.append("Cloud adoption")
-                    if 'automation' in text:
-                        trends.append("Automation trend")
-                    if 'sustainability' in text or 'green' in text:
-                        trends.append("Sustainability focus")
-                    if 'remote' in text or 'hybrid' in text:
-                        trends.append("Remote work adoption")
-                    if 'data' in text:
-                        trends.append("Data-driven insights")
-                    if 'innovation' in text:
-                        trends.append("Innovation-driven growth")
+                # Extract specific trends
+                if any(word in text for word in ['trend', 'trending', 'growth', '2024', '2025', 'future']):
+                    if any(word in text for word in ['ai', 'artificial intelligence', 'machine learning']):
+                        trends.add("AI integration and adoption")
+                    if any(word in text for word in ['digital transformation', 'digitalization']):
+                        trends.add("Digital transformation acceleration")
+                    if any(word in text for word in ['cloud', 'saas', 'paas']):
+                        trends.add("Cloud-first strategies")
+                    if any(word in text for word in ['automation', 'robotic process']):
+                        trends.add("Intelligent automation")
+                    if any(word in text for word in ['sustainability', 'green', 'esg', 'carbon']):
+                        trends.add("Sustainability and ESG focus")
+                    if any(word in text for word in ['remote', 'hybrid', 'flexible work']):
+                        trends.add("Hybrid work models")
+                    if any(word in text for word in ['data analytics', 'big data', 'data-driven']):
+                        trends.add("Data-driven decision making")
+                    if any(word in text for word in ['cybersecurity', 'zero trust', 'security']):
+                        trends.add("Enhanced cybersecurity")
+                    if any(word in text for word in ['personalization', 'customer-centric']):
+                        trends.add("Hyper-personalization")
         
-        # Remove duplicates
-        trends = list(set(trends))[:5]
+        result_trends = list(trends)[:5]
+        print(f"[DEBUG] Extracted market trends: {result_trends}")
         
-        if not trends:
-            trends = ["AI integration", "Digital transformation", "Sustainability focus"]
+        if not result_trends:
+            result_trends = ["AI integration", "Digital transformation", "Sustainability focus"]
         
-        return trends
+        return result_trends
