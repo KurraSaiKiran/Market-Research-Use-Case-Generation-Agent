@@ -1,7 +1,11 @@
 import streamlit as st
 import os
 import json
+from dotenv import load_dotenv
 from main import MultiAgentResearchSystem
+
+# Load environment variables at startup
+load_dotenv()
 
 st.set_page_config(
     page_title="Multi-Agent AI Research System",
@@ -135,22 +139,6 @@ def main():
             # Load environment variables
             from dotenv import load_dotenv
             load_dotenv()
-            
-            # Check API keys
-            missing_keys = []
-            if not os.getenv('SERPER_API_KEY'):
-                missing_keys.append('SERPER_API_KEY')
-            if not os.getenv('GITHUB_TOKEN'):
-                missing_keys.append('GITHUB_TOKEN')
-            if not os.getenv('KAGGLE_KEY'):
-                missing_keys.append('KAGGLE_KEY')
-            if not os.getenv('HUGGINGFACE_API_KEY'):
-                missing_keys.append('HUGGINGFACE_API_KEY')
-            
-            if missing_keys:
-                st.error(f"❌ Missing API keys: {', '.join(missing_keys)}")
-                st.info("All API keys are required for real-time data fetching")
-                st.stop()
             
             # Progress tracking
             progress_bar = st.progress(0)
